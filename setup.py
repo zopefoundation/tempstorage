@@ -28,6 +28,7 @@ setup(name='tempstorage',
 	  packages=find_packages('src'),
 	  package_dir={'': 'src'},
 
+      install_requires=['ZODB3'],
       include_package_data=True,
       zip_safe=False,
       )
