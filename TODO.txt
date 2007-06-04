@@ -1,0 +1,1 @@
+* once the '2.10-with-ZODB3.8' branch is merged, move external to the trunk
