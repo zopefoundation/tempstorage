@@ -17,16 +17,20 @@ import os
 from setuptools import setup, find_packages, Extension
 
 setup(name='tempstorage',
-      version = '2.11.0a1',
-      url='http://svn.zope.org/tempstorage',
+      version = '2.11.0dev',
+      url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
-      description='',
+      description='A RAM-based storage for ZODB',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
-      long_description='',
+      long_description="""\
+A storage implementation which uses RAM to persist objects, much like
+MappingStorage.  Unlike MappingStorage, it needs not be packed to get rid of
+non-cyclic garbage and it does rudimentary conflict resolution.  This is a
+ripoff of Jim's Packless bsddb3 storage.""",
       
-	  packages=find_packages('src'),
-	  package_dir={'': 'src'},
+      packages=find_packages('src'),
+      package_dir={'': 'src'},
 
       install_requires=['ZODB3'],
       include_package_data=True,
