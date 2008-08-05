@@ -17,7 +17,7 @@ import os
 from setuptools import setup, find_packages, Extension
 
 setup(name='tempstorage',
-      version = '2.11.0b1',
+      version = '2.11.1',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
