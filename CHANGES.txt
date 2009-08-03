@@ -4,7 +4,7 @@ Changelog
 2.11.2 - unreleased
 -------------------
 
-- Added change log an readme.
+- Added change log and readme.
 
 2.11.1 - 2008-08-05
 -------------------
