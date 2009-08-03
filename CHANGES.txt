@@ -6,6 +6,8 @@ Changelog
 
 - Added change log and readme.
 
+- Lauchpad #143736, #271395: fixed AttributeError' on _ltid in TempStorage
+
 2.11.1 - 2008-08-05
 -------------------
 
