@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.11.2 - unreleased
+2.11.2 - 2009-08-03
 -------------------
 
 - Added change log and readme.
