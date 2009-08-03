@@ -11,24 +11,22 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-"""Setup for the Acquisition egg package
+"""Setup for the tempstorage package
 """
-import os
-from setuptools import setup, find_packages, Extension
+
+from setuptools import setup, find_packages
+
+long_description = file("README.txt").read() + "\n" + \
+                   file("CHANGES.txt").read()
 
 setup(name='tempstorage',
-      version = '2.11.0dev',
+      version = '2.11.2dev',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
       author='Zope Corporation and Contributors',
       author_email='zope-dev@zope.org',
-      long_description="""\
-A storage implementation which uses RAM to persist objects, much like
-MappingStorage.  Unlike MappingStorage, it needs not be packed to get rid of
-non-cyclic garbage and it does rudimentary conflict resolution.  This is a
-ripoff of Jim's Packless bsddb3 storage.""",
-      
+      long_description=long_description,
       packages=find_packages('src'),
       package_dir={'': 'src'},
 

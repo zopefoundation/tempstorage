@@ -1,0 +1,12 @@
+Changelog
+=========
+
+2.11.2 - unreleased
+-------------------
+
+- Added change log an readme.
+
+2.11.1 - 2008-08-05
+-------------------
+
+- Initial release as a stand-alone package.
