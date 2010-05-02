@@ -1,28 +1,27 @@
-import ZODB
-from ZODB.tests.MinPO import MinPO
-from tempstorage import TemporaryStorage
-import sys, os, unittest, time
+import unittest
 
-from ZODB.tests import StorageTestBase, BasicStorage, \
-     Synchronization, ConflictResolution, \
-     Corruption, RevisionStorage, MTStorage
+from ZODB.tests import StorageTestBase
+from ZODB.tests import BasicStorage
+from ZODB.tests import Synchronization
+from ZODB.tests import ConflictResolution
+from ZODB.tests import Corruption
+from ZODB.tests import MTStorage
 
-from persistent import Persistent
-import transaction
-from ZODB.DB import DB
-from ZODB.POSException import ReadConflictError
 
-class TemporaryStorageTests(
-    StorageTestBase.StorageTestBase,
-##    RevisionStorage.RevisionStorage, # not a revision storage, but passes
-    BasicStorage.BasicStorage,
-    Synchronization.SynchronizedStorage,
-    ConflictResolution.ConflictResolvingStorage,
-    MTStorage.MTStorage,
-    ):
+class TemporaryStorageTests(StorageTestBase.StorageTestBase,
+                           # not a revision storage, but passes
+                           #RevisionStorage.RevisionStorage,
+                            BasicStorage.BasicStorage,
+                            Synchronization.SynchronizedStorage,
+                            ConflictResolution.ConflictResolvingStorage,
+                            MTStorage.MTStorage,
+                           ):
+
+    _old_conflict_cache = None
 
     def open(self, **kwargs):
-        self._storage = TemporaryStorage.TemporaryStorage('foo')
+        from tempstorage.TemporaryStorage import TemporaryStorage
+        self._storage = TemporaryStorage('foo')
 
     def setUp(self):
         StorageTestBase.StorageTestBase.setUp(self)
@@ -30,31 +29,21 @@ class TemporaryStorageTests(
 
     def tearDown(self):
         StorageTestBase.StorageTestBase.tearDown(self)
+        if self._old_conflict_cache is not None:
+            from tempstorage import TemporaryStorage as TS
+            (TS.CONFLICT_CACHE_GCEVERY,
+             TS.CONFLICT_CACHE_MAXAGE) = self._old_conflict_cache
 
-    def checkConflictCacheIsCleared(self):
-        old_gcevery = TemporaryStorage.CONFLICT_CACHE_GCEVERY
-        old_maxage  = TemporaryStorage.CONFLICT_CACHE_MAXAGE
-        TemporaryStorage.CONFLICT_CACHE_GCEVERY = 5
-        TemporaryStorage.CONFLICT_CACHE_MAXAGE =  5
-        try:
-            oid = self._storage.new_oid()
-            self._dostore(oid, data=MinPO(5))
-            time.sleep(TemporaryStorage.CONFLICT_CACHE_GCEVERY + 1)
-            oid2 = self._storage.new_oid()
-            self._dostore(oid2, data=MinPO(10))
-            oid3 = self._storage.new_oid()
-            self._dostore(oid3, data=MinPO(9))
-            assert len(self._storage._conflict_cache) == 2
-            time.sleep(TemporaryStorage.CONFLICT_CACHE_GCEVERY + 1)
-            oid4 = self._storage.new_oid()
-            self._dostore(oid4, data=MinPO(11))
-            assert len(self._storage._conflict_cache) == 1
+    def _set_conflict_cache(self, gcevery, maxage):
+        from tempstorage import TemporaryStorage as TS
+        self._old_conflict_cache = (TS.CONFLICT_CACHE_GCEVERY,
+                                    TS.CONFLICT_CACHE_MAXAGE)
+        TS.CONFLICT_CACHE_GCEVERY = gcevery
+        TS.CONFLICT_CACHE_MAXAGE = maxage
 
-        finally:
-            TemporaryStorage.CONFLICT_CACHE_GCEVERY = old_gcevery
-            TemporaryStorage.CONFLICT_CACHE_MAXAGE =  old_maxage
-
-    def doreadconflict(self, db, mvcc):
+    def _do_read_conflict(self, db, mvcc):
+        import transaction
+        from ZODB.tests.MinPO import MinPO
         tm1 = transaction.TransactionManager()
         conn = db.open(transaction_manager=tm1)
         r1 = conn.root()
@@ -86,14 +75,42 @@ class TemporaryStorageTests(
         obj.child1 
         return obj
 
+    def checkConflictCacheIsCleared(self):
+        import time
+        from ZODB.tests.MinPO import MinPO
+        self._set_conflict_cache(5, 5)
+
+        oid = self._storage.new_oid()
+        self._dostore(oid, data=MinPO(5))
+
+        time.sleep(6)
+
+        oid2 = self._storage.new_oid()
+        self._dostore(oid2, data=MinPO(10))
+
+        oid3 = self._storage.new_oid()
+        self._dostore(oid3, data=MinPO(9))
+
+        self.assertEqual(len(self._storage._conflict_cache), 2)
+
+        time.sleep(6)
+
+        oid4 = self._storage.new_oid()
+        self._dostore(oid4, data=MinPO(11))
+
+        self.assertEqual(len(self._storage._conflict_cache), 1)
+
     def checkWithMVCCDoesntRaiseReadConflict(self):
+        from ZODB.DB import DB
+        from ZODB.tests.MinPO import MinPO
         db = DB(self._storage)
-        ob = self.doreadconflict(db, True)
+        ob = self._do_read_conflict(db, True)
         self.assertEquals(ob.__class__, MinPO)
         self.assertEquals(getattr(ob, 'child1', MinPO()).value, 'child1')
         self.failIf(getattr(ob, 'child2', None))
 
     def checkLoadEx(self):
+        from ZODB.tests.MinPO import MinPO
         oid = self._storage.new_oid()
         self._dostore(oid, data=MinPO(1))
         loadp, loads  = self._storage.load(oid, 'whatever')
@@ -104,25 +121,10 @@ class TemporaryStorageTests(
         
 
 def test_suite():
-    suite = unittest.makeSuite(TemporaryStorageTests, 'check')
-    suite2 = unittest.makeSuite(Corruption.FileStorageCorruptTests, 'check')
-    suite.addTest(suite2)
-    return suite
-
-def main():
-    alltests=test_suite()
-    runner = unittest.TextTestRunner(verbosity=9)
-    runner.run(alltests)
-
-def debug():
-    test_suite().debug()
-
-def pdebug():
-    import pdb
-    pdb.run('debug()')
-
-if __name__=='__main__':
-    if len(sys.argv) > 1:
-        globals()[sys.argv[1]]()
-    else:
-        main()
+    # Note:  we follow the ZODB 'check' pattern here so that the base
+    # class tests are picked up.
+    return unittest.TestSuite((
+        unittest.makeSuite(TemporaryStorageTests, 'check'),
+        # Why are we testing this here?
+        unittest.makeSuite(Corruption.FileStorageCorruptTests, 'check'),
+    ))
