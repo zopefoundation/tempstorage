@@ -17,29 +17,77 @@ from ZODB.tests import StorageTestBase
 from ZODB.tests import BasicStorage
 from ZODB.tests import Synchronization
 from ZODB.tests import ConflictResolution
-from ZODB.tests import Corruption
 from ZODB.tests import MTStorage
 
-
-class TemporaryStorageTests(StorageTestBase.StorageTestBase,
-                           # not a revision storage, but passes
-                           #RevisionStorage.RevisionStorage,
-                            BasicStorage.BasicStorage,
-                            Synchronization.SynchronizedStorage,
-                            ConflictResolution.ConflictResolvingStorage,
-                            MTStorage.MTStorage,
-                           ):
-
-    def open(self, **kwargs):
-        from tempstorage.TemporaryStorage import TemporaryStorage
-        self._storage = TemporaryStorage('foo')
+class ZODBProtocolTests(StorageTestBase.StorageTestBase,
+                       # not a revision storage, but passes
+                       #RevisionStorage.RevisionStorage,
+                        BasicStorage.BasicStorage,
+                        Synchronization.SynchronizedStorage,
+                        ConflictResolution.ConflictResolvingStorage,
+                        MTStorage.MTStorage,
+                       ):
 
     def setUp(self):
         StorageTestBase.StorageTestBase.setUp(self)
         self.open()
 
-    def tearDown(self):
-        StorageTestBase.StorageTestBase.tearDown(self)
+    def open(self, **kwargs):
+        from tempstorage.TemporaryStorage import TemporaryStorage
+        self._storage = TemporaryStorage('foo')
+
+
+class TemporaryStorageTests(unittest.TestCase):
+
+    def _getTargetClass(self):
+        from tempstorage.TemporaryStorage import TemporaryStorage
+        return TemporaryStorage
+
+    def _makeOne(self, name='foo'):
+        return self._getTargetClass()(name)
+
+    def _dostore(self, storage, oid=None, revid=None, data=None,
+                 already_pickled=0, user=None, description=None):
+        # Borrowed from StorageTestBase, to allow passing storage.
+        """Do a complete storage transaction.  The defaults are:
+
+         - oid=None, ask the storage for a new oid
+         - revid=None, use a revid of ZERO
+         - data=None, pickle up some arbitrary data (the integer 7)
+
+        Returns the object's new revision id.
+        """
+        import transaction
+        from ZODB.tests.MinPO import MinPO
+
+        if oid is None:
+            oid = storage.new_oid()
+        if revid is None:
+            revid = StorageTestBase.ZERO
+        if data is None:
+            data = MinPO(7)
+        if type(data) == int:
+            data = MinPO(data)
+        if not already_pickled:
+            data = StorageTestBase.zodb_pickle(data)
+        # Begin the transaction
+        t = transaction.Transaction()
+        if user is not None:
+            t.user = user
+        if description is not None:
+            t.description = description
+        try:
+            storage.tpc_begin(t)
+            # Store an object
+            r1 = storage.store(oid, revid, data, '', t)
+            # Finish the transaction
+            r2 = storage.tpc_vote(t)
+            revid = StorageTestBase.handle_serials(oid, r1, r2)
+            storage.tpc_finish(t)
+        except:
+            storage.tpc_abort(t)
+            raise
+        return revid
 
     def _do_read_conflict(self, db, mvcc):
         import transaction
@@ -75,55 +123,59 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
         obj.child1 
         return obj
 
-    def checkConflictCacheIsCleared(self):
+    def test_conflict_cache_clears_over_time(self):
         import time
         from ZODB.tests.MinPO import MinPO
-        self._storage._conflict_cache_gcevery = 1 # second
-        self._storage._conflict_cache_maxage = 1  # second
+        storage = self._makeOne()
+        storage._conflict_cache_gcevery = 1 # second
+        storage._conflict_cache_maxage = 1  # second
 
-        oid = self._storage.new_oid()
-        self._dostore(oid, data=MinPO(5))
-
-        time.sleep(2)
-
-        oid2 = self._storage.new_oid()
-        self._dostore(oid2, data=MinPO(10))
-
-        oid3 = self._storage.new_oid()
-        self._dostore(oid3, data=MinPO(9))
-
-        self.assertEqual(len(self._storage._conflict_cache), 2)
+        oid = storage.new_oid()
+        self._dostore(storage,oid, data=MinPO(5))
 
         time.sleep(2)
 
-        oid4 = self._storage.new_oid()
-        self._dostore(oid4, data=MinPO(11))
+        oid2 = storage.new_oid()
+        self._dostore(storage,oid2, data=MinPO(10))
 
-        self.assertEqual(len(self._storage._conflict_cache), 1)
+        oid3 = storage.new_oid()
+        self._dostore(storage,oid3, data=MinPO(9))
 
-    def checkWithMVCCDoesntRaiseReadConflict(self):
+        self.assertEqual(len(storage._conflict_cache), 2)
+
+        time.sleep(2)
+
+        oid4 = storage.new_oid()
+        self._dostore(storage,oid4, data=MinPO(11))
+
+        self.assertEqual(len(storage._conflict_cache), 1)
+
+    def test_have_MVCC_ergo_no_ReadConflict(self):
         from ZODB.DB import DB
         from ZODB.tests.MinPO import MinPO
-        db = DB(self._storage)
+        storage = self._makeOne()
+        db = DB(storage)
         ob = self._do_read_conflict(db, True)
         self.assertEquals(ob.__class__, MinPO)
         self.assertEquals(getattr(ob, 'child1', MinPO()).value, 'child1')
         self.failIf(getattr(ob, 'child2', None))
 
-    def checkLoadEx(self):
+    def test_load_ex_matches_load(self):
         from ZODB.tests.MinPO import MinPO
-        oid = self._storage.new_oid()
-        self._dostore(oid, data=MinPO(1))
-        loadp, loads  = self._storage.load(oid, 'whatever')
-        exp, exs, exv = self._storage.loadEx(oid, 'whatever')
+        storage = self._makeOne()
+        oid = storage.new_oid()
+        self._dostore(storage,oid, data=MinPO(1))
+        loadp, loads  = storage.load(oid, 'whatever')
+        exp, exs, exv = storage.loadEx(oid, 'whatever')
         self.assertEqual(loadp, exp)
         self.assertEqual(loads, exs)
         self.assertEqual(exv, '')
         
 
 def test_suite():
-    # Note:  we follow the ZODB 'check' pattern here so that the base
-    # class tests are picked up.
     return unittest.TestSuite((
-        unittest.makeSuite(TemporaryStorageTests, 'check'),
+        unittest.makeSuite(TemporaryStorageTests),
+        # Note:  we follow the ZODB 'check' pattern here so that the base
+        # class tests are picked up.
+        unittest.makeSuite(ZODBProtocolTests, 'check'),
     ))
