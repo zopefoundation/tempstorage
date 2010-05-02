@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2003 Zope Corporation and Contributors.
+# Copyright (c) 2003 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,5 +11,4 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
-
-# This file is needed to make this a package.
+# make this a package.

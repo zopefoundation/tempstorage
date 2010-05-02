@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2007 Zope Corporation and Contributors.
+# Copyright (c) 2007 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -24,7 +24,7 @@ setup(name='tempstorage',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
-      author='Zope Corporation and Contributors',
+      author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       long_description=long_description,
       packages=find_packages('src'),
