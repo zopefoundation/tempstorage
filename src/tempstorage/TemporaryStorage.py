@@ -59,21 +59,36 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
     def __init__(self, name='TemporaryStorage'):
         """
-        index -- mapping of oid to current serial
-        referenceCount -- mapping of oid to count
-        oreferences -- mapping of oid to a sequence of its referenced oids
-        opickle -- mapping of oid to pickle
+        _index -- mapping, oid => current serial
+
+        _referenceCount -- mapping, oid => count
+
+        _oreferences -- mapping, oid => sequence of referenced oids
+
+        _opickle -- mapping, oid => pickle
+
         _tmp -- used by 'store' to collect changes before finalization
+
         _conflict_cache -- cache of recently-written object revisions
+
         _last_cache_gc -- last time that conflict cache was garbage collected
-        _recently_gc_oids -- a queue of recently gc'ed oids
+
+        _recently_gc_oids -- a queue of recently GC'ed oids
+
+        _oid -- ???
+
+        _ltid -- serial of last committed transaction (required by ZEO)
+
+        _conflict_cache_gcevery -- interval for doing GC on conflict cache
+
+        _conflict_cache_maxage -- age at whic conflict cache items are GC'ed
         """
         BaseStorage.__init__(self, name)
 
-        self._index={}
-        self._referenceCount={}
-        self._oreferences={}
-        self._opickle={}
+        self._index = {}
+        self._referenceCount = {}
+        self._oreferences = {}
+        self._opickle = {}
         self._tmp = []
         self._conflict_cache = {}
         self._last_cache_gc = 0
@@ -114,8 +129,8 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._lock_acquire()
         try:
             try:
-                s=self._index[oid]
-                p=self._opickle[oid]
+                s = self._index[oid]
+                p = self._opickle[oid]
                 return p, s # pickle, serial
             except KeyError:
                 # this oid was probably garbage collected while a thread held
@@ -176,7 +191,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         try:
             tids = [stid for soid, stid in self._conflict_cache if soid == oid]
             if not tids:
-                raise KeyError, oid
+                raise KeyError(oid)
             tids.sort()
             i = bisect.bisect_left(tids, tid) -1
             if i == -1:
@@ -204,45 +219,45 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._lock_acquire()
         try:
             if self._index.has_key(oid):
-                oserial=self._index[oid]
+                oserial = self._index[oid]
                 if serial != oserial:
                     newdata = self.tryToResolveConflict(
-                        oid, oserial, serial, data)
+                                            oid, oserial, serial, data)
                     if not newdata:
                         raise POSException.ConflictError(
-                            oid=oid,
-                            serials=(oserial, serial),
-                            data=data)
+                                            oid=oid,
+                                            serials=(oserial, serial),
+                                            data=data)
                     else:
                         data = newdata
             else:
                 oserial = serial
-            newserial=self._tid
+            newserial = self._tid
             self._tmp.append((oid, data))
             return serial == oserial and newserial or ResolvedSerial
         finally:
             self._lock_release()
 
     def _finish(self, tid, u, d, e):
-        zeros={}
-        referenceCount=self._referenceCount
-        referenceCount_get=referenceCount.get
-        oreferences=self._oreferences
-        serial=self._tid
-        index=self._index
-        opickle=self._opickle
+        zeros = {}
+        referenceCount = self._referenceCount
+        referenceCount_get = referenceCount.get
+        oreferences = self._oreferences
+        serial = self._tid
+        index = self._index
+        opickle = self._opickle
         self._ltid = tid
 
         # iterate over all the objects touched by/created within this
         # transaction
         for entry in self._tmp:
             oid, data = entry[:]
-            referencesl=[]
+            referencesl = []
             referencesf(data, referencesl)
-            references={}
+            references = {}
             for roid in referencesl:
-                references[roid]=1
-            referenced=references.has_key
+                references[roid] = 1
+            referenced = references.has_key
 
             # Create a reference count for this object if one
             # doesn't already exist
@@ -265,16 +280,16 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                     oreferences[oid].remove(roid)
                     # decrement refcnt:
                     rc = referenceCount_get(roid, 1)
-                    rc=rc-1
+                    rc = rc-1
                     if rc < 0:
                         # This should never happen
-                        raise ReferenceCountError, (
-                            "%s (Oid %s had refcount %s)" %
-                            (ReferenceCountError.__doc__,`roid`,rc)
+                        raise ReferenceCountError(
+                            "%s (Oid %r had refcount %s)" %
+                            (ReferenceCountError.__doc__, roid, rc)
                             )
                     referenceCount[roid] = rc
-                    if rc==0:
-                        zeros[roid]=1
+                    if rc == 0:
+                        zeros[roid] = 1
 
             # Create a reference list for this object if one
             # doesn't already exist
@@ -285,37 +300,46 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             for roid in references.keys():
                 oreferences[oid].append(roid)
                 # Create/update refcnt
-                rc=referenceCount_get(roid, 0)
-                if rc==0 and zeros.get(roid) is not None:
+                rc = referenceCount_get(roid, 0)
+                if rc == 0 and zeros.get(roid) is not None:
                     del zeros[roid]
-                referenceCount[roid] = rc+1
+                referenceCount[roid] = rc + 1
 
-            index[oid] =  serial
+            index[oid] = serial
             opickle[oid] = data
             now = time.time()
             self._conflict_cache[(oid, serial)] = data, now
 
         if zeros:
             for oid in zeros.keys():
-                if oid == '\0\0\0\0\0\0\0\0': continue
+                if oid == '\0\0\0\0\0\0\0\0':
+                    continue
                 self._takeOutGarbage(oid)
 
         self._tmp = []
 
     def _takeOutGarbage(self, oid):
         # take out the garbage.
-        referenceCount=self._referenceCount
-        referenceCount_get=referenceCount.get
+        referenceCount = self._referenceCount
+        referenceCount_get = referenceCount.get
 
         self._recently_gc_oids.pop()
         self._recently_gc_oids.insert(0, oid)
 
-        try: del referenceCount[oid]
-        except: pass
-        try: del self._opickle[oid]
-        except: pass
-        try: del self._index[oid]
-        except: pass
+        try:
+            del referenceCount[oid]
+        except:
+            pass
+
+        try:
+            del self._opickle[oid]
+        except:
+            pass
+
+        try:
+            del self._index[oid]
+        except:
+            pass
 
         # remove this object from the conflict cache if it exists there
         for k in self._conflict_cache.keys():
@@ -329,32 +353,35 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             # decrement refcnt:
             # DM 2005-01-07: decrement *before* you make the test!
             # rc=referenceCount_get(roid, 0)
-            rc=referenceCount_get(roid, 0) - 1
-            if rc==0:
+            rc = referenceCount_get(roid, 0) - 1
+            if rc == 0:
                 self._takeOutGarbage(roid)
             elif rc < 0:
-                raise ReferenceCountError, (
-                    "%s (Oid %s had refcount %s)" %
-                    (ReferenceCountError.__doc__,`roid`,rc)
+                raise ReferenceCountError(
+                    "%s (Oid %r had refcount %s)" %
+                    (ReferenceCountError.__doc__, roid, rc)
                     )
             else:
                 # DM 2005-01-07: decremented *before* the test! see above
                 #referenceCount[roid] = rc - 1
                 referenceCount[roid] = rc
-        try: del self._oreferences[oid]
-        except: pass
+        try:
+            del self._oreferences[oid]
+        except:
+            pass
 
     def pack(self, t, referencesf):
         self._lock_acquire()
         try:
-            rindex={}
-            referenced=rindex.has_key
-            rootl=['\0\0\0\0\0\0\0\0']
+            rindex = {}
+            referenced = rindex.has_key
+            rootl = ['\0\0\0\0\0\0\0\0']
 
             # mark referenced objects
             while rootl:
-                oid=rootl.pop()
-                if referenced(oid): continue
+                oid = rootl.pop()
+                if referenced(oid):
+                    continue
                 p = self._opickle[oid]
                 referencesf(p, rootl)
                 rindex[oid] = None
