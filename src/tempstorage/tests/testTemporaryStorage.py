@@ -126,6 +126,4 @@ def test_suite():
     # class tests are picked up.
     return unittest.TestSuite((
         unittest.makeSuite(TemporaryStorageTests, 'check'),
-        # Why are we testing this here?
-        unittest.makeSuite(Corruption.FileStorageCorruptTests, 'check'),
     ))
