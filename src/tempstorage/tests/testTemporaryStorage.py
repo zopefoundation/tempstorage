@@ -78,12 +78,12 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
     def checkConflictCacheIsCleared(self):
         import time
         from ZODB.tests.MinPO import MinPO
-        self._set_conflict_cache(5, 5)
+        self._set_conflict_cache(1, 1)
 
         oid = self._storage.new_oid()
         self._dostore(oid, data=MinPO(5))
 
-        time.sleep(6)
+        time.sleep(2)
 
         oid2 = self._storage.new_oid()
         self._dostore(oid2, data=MinPO(10))
@@ -93,7 +93,7 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
 
         self.assertEqual(len(self._storage._conflict_cache), 2)
 
-        time.sleep(6)
+        time.sleep(2)
 
         oid4 = self._storage.new_oid()
         self._dostore(oid4, data=MinPO(11))
