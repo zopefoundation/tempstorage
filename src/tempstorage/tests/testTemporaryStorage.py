@@ -68,6 +68,7 @@ class TemporaryStorageTests(
         tm2 = transaction.TransactionManager()
         cn2 = db.open(transaction_manager=tm2)
         r2 = cn2.root()
+        ignored = r2["p"] # force a read to unghostify the root.
 
         self.assertEqual(r1._p_serial, r2._p_serial)
 
