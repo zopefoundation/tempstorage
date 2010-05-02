@@ -10,45 +10,50 @@
 # FOR A PARTICULAR PURPOSE
 #
 ##############################################################################
+""" A storage implementation which uses RAM to persist objects
 
+Although this storage is much like MappingStorage, it does not need to be
+packed to get rid of non-cyclic garbage and it does rudimentary conflict
+resolution.
+
+This is a ripoff of Jim's Packless bsddb3 storage.
 """
-A storage implementation which uses RAM to persist objects, much like
-MappingStorage.  Unlike MappingStorage, it needs not be packed to get rid of
-non-cyclic garbage and it does rudimentary conflict resolution.  This is a
-ripoff of Jim's Packless bsddb3 storage.
-
-$Id$
-"""
-
-__version__ ='$Revision: 1.1.2.2 $'[11:-2]
-
+import bisect
 from logging import getLogger
-from ZODB.serialize import referencesf
-from ZODB.utils import z64
+import time
+
 from ZODB import POSException
 from ZODB.BaseStorage import BaseStorage
-from ZODB.ConflictResolution import ConflictResolvingStorage, ResolvedSerial
-import time
-import bisect
+from ZODB.ConflictResolution import ConflictResolvingStorage
+from ZODB.ConflictResolution import ResolvedSerial
+from ZODB.serialize import referencesf
+from ZODB.utils import z64
 
 # keep old object revisions for CONFLICT_CACHE_MAXAGE seconds
 CONFLICT_CACHE_MAXAGE = 60
+
 # garbage collect conflict cache every CONFLICT_CACHE_GCEVERY seconds
 CONFLICT_CACHE_GCEVERY = 60
+
 # keep history of recently gc'ed oids of length RECENTLY_GC_OIDS_LEN
 RECENTLY_GC_OIDS_LEN = 200
 
 LOG = getLogger('TemporaryStorage')
 
+
 class ReferenceCountError(POSException.POSError):
-    """ An error occured while decrementing a reference to an object in
-    the commit phase. The object's reference count was below zero."""
+    """ Error while decrementing a reference to an object in the commit phase.
+    
+    The object's reference count was below zero.
+    """
 
 class TemporaryStorageError(POSException.POSError):
-    """ A Temporary Storage exception occurred.  This probably indicates that
-    there is a low memory condition or a tempfile space shortage.  Check
-    available tempfile space and RAM consumption and restart the server
-    process."""
+    """ A Temporary Storage exception occurred.
+    
+    This probably indicates that there is a low memory condition or a
+    tempfile space shortage.  Check available tempfile space and RAM
+    consumption and restart the server process.
+    """
 
 class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
@@ -76,8 +81,13 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._oid = z64
         self._ltid = z64
 
+        # Alow overrides for testing.
+        self._conflict_cache_gcevery = CONFLICT_CACHE_GCEVERY
+        self._conflict_cache_maxage = CONFLICT_CACHE_MAXAGE
+
     def lastTransaction(self):
-        """ Return tid for last committed transaction (for ZEO) """
+        """ Return tid for last committed transaction (for ZEO)
+        """
         return self._ltid
 
     def __len__(self):
@@ -88,17 +98,16 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
     def _clear_temp(self):
         now = time.time()
-        if now > (self._last_cache_gc + CONFLICT_CACHE_GCEVERY):
+        if now > (self._last_cache_gc + self._conflict_cache_gcevery):
             for k, v in self._conflict_cache.items():
                 data, t = v
-                if now > (t + CONFLICT_CACHE_MAXAGE):
+                if now > (t + self._conflict_cache_maxage):
                     del self._conflict_cache[k]
             self._last_cache_gc = now
         self._tmp = []
 
     def close(self):
-        """
-        Close the storage
+        """ Close the storage
         """
 
     def load(self, oid, version):
@@ -140,9 +149,11 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         return (data[0], data[1], "")
 
     def loadSerial(self, oid, serial, marker=[]):
-        """ this is only useful to make conflict resolution work.  It
-        does not actually implement all the semantics that a revisioning
-        storage needs! """
+        """ This is only useful to make conflict resolution work.
+        
+        It does not actually implement all the semantics that a revisioning
+        storage needs!
+        """
         self._lock_acquire()
         try:
             data = self._conflict_cache.get((oid, serial), marker)
@@ -156,9 +167,10 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             self._lock_release()
 
     def loadBefore(self, oid, tid):
-        """Return most recent revision of oid before tid committed
-        (for MVCC)
-        ."""
+        """ Return most recent revision of oid before tid committed.
+
+        Needed for MVCC.
+        """
         # implementation stolen from ZODB.test_storage.MinimalMemoryStorage
         self._lock_acquire()
         try:
@@ -186,8 +198,8 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         if version:
             # we allow a version to be in use although we don't
             # support versions in the storage.
-            LOG.debug('versions in use with TemporaryStorage although Temporary '
-                      'Storage doesnt support versions')
+            LOG.debug('versions in use with TemporaryStorage although'
+                      'Temporary Storage doesnt support versions')
 
         self._lock_acquire()
         try:

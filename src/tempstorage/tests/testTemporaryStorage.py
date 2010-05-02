@@ -17,8 +17,6 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
                             MTStorage.MTStorage,
                            ):
 
-    _old_conflict_cache = None
-
     def open(self, **kwargs):
         from tempstorage.TemporaryStorage import TemporaryStorage
         self._storage = TemporaryStorage('foo')
@@ -29,17 +27,6 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
 
     def tearDown(self):
         StorageTestBase.StorageTestBase.tearDown(self)
-        if self._old_conflict_cache is not None:
-            from tempstorage import TemporaryStorage as TS
-            (TS.CONFLICT_CACHE_GCEVERY,
-             TS.CONFLICT_CACHE_MAXAGE) = self._old_conflict_cache
-
-    def _set_conflict_cache(self, gcevery, maxage):
-        from tempstorage import TemporaryStorage as TS
-        self._old_conflict_cache = (TS.CONFLICT_CACHE_GCEVERY,
-                                    TS.CONFLICT_CACHE_MAXAGE)
-        TS.CONFLICT_CACHE_GCEVERY = gcevery
-        TS.CONFLICT_CACHE_MAXAGE = maxage
 
     def _do_read_conflict(self, db, mvcc):
         import transaction
@@ -78,7 +65,8 @@ class TemporaryStorageTests(StorageTestBase.StorageTestBase,
     def checkConflictCacheIsCleared(self):
         import time
         from ZODB.tests.MinPO import MinPO
-        self._set_conflict_cache(1, 1)
+        self._storage._conflict_cache_gcevery = 1 # second
+        self._storage._conflict_cache_maxage = 1  # second
 
         oid = self._storage.new_oid()
         self._dostore(oid, data=MinPO(5))
