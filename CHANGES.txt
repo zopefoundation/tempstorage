@@ -1,9 +1,19 @@
 Changelog
 =========
 
-2.11.3 - unreleased
+2.11.3 - 2010-06-05
 -------------------
 
+- Approximate PEP8 compliance.
+
+- Split out the ZODB protocol tests from the tests specific to the module.
+  Make the local tests use "normal" unittest conventions.
+
+- Comply with repository policy.
+
+- Clean imports, docstrings;  add an instance-level hook for GC parms.
+
+- Fix a test failure due to never-unghostified root in second connection.
 
 2.11.2 - 2009-08-03
 -------------------
