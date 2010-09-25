@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.12.0 - unreleased
+2.12.0 - 2010-09-25
 -------------------
 
 - Require at least ZODB 3.9 and adjusted method signatures to disuse versions.
