@@ -11,6 +11,7 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ##############################################################################
+
 import unittest
 
 from ZODB.tests import StorageTestBase
@@ -19,9 +20,8 @@ from ZODB.tests import Synchronization
 from ZODB.tests import ConflictResolution
 from ZODB.tests import MTStorage
 
+
 class ZODBProtocolTests(StorageTestBase.StorageTestBase,
-                       # not a revision storage, but passes
-                       #RevisionStorage.RevisionStorage,
                         BasicStorage.BasicStorage,
                         Synchronization.SynchronizedStorage,
                         ConflictResolution.ConflictResolvingStorage,
@@ -105,7 +105,7 @@ class TemporaryStorageTests(unittest.TestCase):
         tm2 = transaction.TransactionManager()
         cn2 = db.open(transaction_manager=tm2)
         r2 = cn2.root()
-        ignored = r2["p"] # force a read to unghostify the root.
+        r2["p"]._p_activate()
 
         self.assertEqual(r1._p_serial, r2._p_serial)
 
@@ -120,7 +120,7 @@ class TemporaryStorageTests(unittest.TestCase):
         # in the transaction and obj was modified by the other
         # transaction.
 
-        obj.child1 
+        obj.child1
         return obj
 
     def test_conflict_cache_clears_over_time(self):
@@ -131,22 +131,22 @@ class TemporaryStorageTests(unittest.TestCase):
         storage._conflict_cache_maxage = 1  # second
 
         oid = storage.new_oid()
-        self._dostore(storage,oid, data=MinPO(5))
+        self._dostore(storage, oid, data=MinPO(5))
 
         time.sleep(2)
 
         oid2 = storage.new_oid()
-        self._dostore(storage,oid2, data=MinPO(10))
+        self._dostore(storage, oid2, data=MinPO(10))
 
         oid3 = storage.new_oid()
-        self._dostore(storage,oid3, data=MinPO(9))
+        self._dostore(storage, oid3, data=MinPO(9))
 
         self.assertEqual(len(storage._conflict_cache), 2)
 
         time.sleep(2)
 
         oid4 = storage.new_oid()
-        self._dostore(storage,oid4, data=MinPO(11))
+        self._dostore(storage, oid4, data=MinPO(11))
 
         self.assertEqual(len(storage._conflict_cache), 1)
 
@@ -164,13 +164,13 @@ class TemporaryStorageTests(unittest.TestCase):
         from ZODB.tests.MinPO import MinPO
         storage = self._makeOne()
         oid = storage.new_oid()
-        self._dostore(storage,oid, data=MinPO(1))
-        loadp, loads  = storage.load(oid, 'whatever')
+        self._dostore(storage, oid, data=MinPO(1))
+        loadp, loads = storage.load(oid, 'whatever')
         exp, exs, exv = storage.loadEx(oid, 'whatever')
         self.assertEqual(loadp, exp)
         self.assertEqual(loads, exs)
         self.assertEqual(exv, '')
-        
+
 
 def test_suite():
     return unittest.TestSuite((
