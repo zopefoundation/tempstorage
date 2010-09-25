@@ -43,17 +43,19 @@ LOG = getLogger('TemporaryStorage')
 
 class ReferenceCountError(POSException.POSError):
     """ Error while decrementing a reference to an object in the commit phase.
-    
+
     The object's reference count was below zero.
     """
 
+
 class TemporaryStorageError(POSException.POSError):
     """ A Temporary Storage exception occurred.
-    
+
     This probably indicates that there is a low memory condition or a
     tempfile space shortage.  Check available tempfile space and RAM
     consumption and restart the server process.
     """
+
 
 class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
@@ -92,7 +94,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._tmp = []
         self._conflict_cache = {}
         self._last_cache_gc = 0
-        self._recently_gc_oids = [None for x in range (RECENTLY_GC_OIDS_LEN)]
+        self._recently_gc_oids = [None for x in range(RECENTLY_GC_OIDS_LEN)]
         self._oid = z64
         self._ltid = z64
 
@@ -165,7 +167,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
     def loadSerial(self, oid, serial, marker=[]):
         """ This is only useful to make conflict resolution work.
-        
+
         It does not actually implement all the semantics that a revisioning
         storage needs!
         """
@@ -218,7 +220,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
         self._lock_acquire()
         try:
-            if self._index.has_key(oid):
+            if oid in self._index:
                 oserial = self._index[oid]
                 if serial != oserial:
                     newdata = self.tryToResolveConflict(
@@ -285,8 +287,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                         # This should never happen
                         raise ReferenceCountError(
                             "%s (Oid %r had refcount %s)" %
-                            (ReferenceCountError.__doc__, roid, rc)
-                            )
+                            (ReferenceCountError.__doc__, roid, rc))
                     referenceCount[roid] = rc
                     if rc == 0:
                         zeros[roid] = 1
@@ -359,8 +360,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             elif rc < 0:
                 raise ReferenceCountError(
                     "%s (Oid %r had refcount %s)" %
-                    (ReferenceCountError.__doc__, roid, rc)
-                    )
+                    (ReferenceCountError.__doc__, roid, rc))
             else:
                 # DM 2005-01-07: decremented *before* the test! see above
                 #referenceCount[roid] = rc - 1
