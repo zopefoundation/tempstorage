@@ -127,7 +127,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         """ Close the storage
         """
 
-    def load(self, oid, version):
+    def load(self, oid, version=''):
         self._lock_acquire()
         try:
             try:
@@ -158,11 +158,9 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
     # cache".  But 'load' appears to do that too, so uh, who knows.
     # - CM
 
-    def loadEx(self, oid, version):
-        data = self.load(oid, version)
+    def loadEx(self, oid, version=''):
+        data = self.load(oid)
         # pickle, serial, version
-        # return an empty string for the version, as this is not a
-        # versioning storage, and it's what MappingStorage does.
         return (data[0], data[1], "")
 
     def loadSerial(self, oid, serial, marker=[]):
@@ -212,11 +210,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
     def store(self, oid, serial, data, version, transaction):
         if transaction is not self._transaction:
             raise POSException.StorageTransactionError(self, transaction)
-        if version:
-            # we allow a version to be in use although we don't
-            # support versions in the storage.
-            LOG.debug('versions in use with TemporaryStorage although'
-                      'Temporary Storage doesnt support versions')
+        assert not version
 
         self._lock_acquire()
         try:

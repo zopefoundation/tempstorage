@@ -4,6 +4,8 @@ Changelog
 2.12.0 - unreleased
 -------------------
 
+- Require at least ZODB 3.9 and adjusted method signatures to disuse versions.
+
 - Expanded dependency on ZODB3 to include the test extra.
 
 2.11.3 - 2010-06-05
