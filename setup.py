@@ -20,7 +20,7 @@ long_description = file("README.txt").read() + "\n" + \
                    file("CHANGES.txt").read()
 
 setup(name='tempstorage',
-      version = '2.12.1dev',
+      version = '2.12.1',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',

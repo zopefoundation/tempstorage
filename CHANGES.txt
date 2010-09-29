@@ -1,12 +1,11 @@
 Changelog
 =========
 
-2.12.1 - unreleased
+2.12.1 - 2010-09-29
 -------------------
 
 - Disabled ``check_tid_ordering_w_commit`` test from BasicStorage, as it uses
   invalid test data.
-
 
 2.12.0 - 2010-09-25
 -------------------
