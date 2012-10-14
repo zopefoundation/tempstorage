@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.12.2 - unreleased
+2.12.2 - 2012-10-14
 -------------------
 
 - Explicitly state distribution dependencies instead of re-using the
