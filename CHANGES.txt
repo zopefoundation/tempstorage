@@ -4,6 +4,8 @@ Changelog
 2.12.2 - unreleased
 -------------------
 
+- Explicitly state distribution dependencies instead of re-using the
+  ZODB test requirements.
 
 2.12.1 - 2010-09-29
 -------------------
