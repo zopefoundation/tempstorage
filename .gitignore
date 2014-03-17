@@ -3,8 +3,10 @@ build
 dist
 lib
 parts
+develop-eggs
 
 *.dll
 *.pyc
 *.pyo
 *.so
+.installed.cfg
