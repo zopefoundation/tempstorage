@@ -116,7 +116,8 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
     def _clear_temp(self):
         now = time.time()
         if now > (self._last_cache_gc + self._conflict_cache_gcevery):
-            for k, v in self._conflict_cache.items():
+            temp_cc = self._conflict_cache.copy()
+            for k, v in temp_cc.items():
                 data, t = v
                 if now > (t + self._conflict_cache_maxage):
                     del self._conflict_cache[k]
@@ -253,7 +254,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             references = {}
             for roid in referencesl:
                 references[roid] = 1
-            referenced = references.has_key
 
             # Create a reference count for this object if one
             # doesn't already exist
@@ -265,7 +265,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             # object
             roids = oreferences.get(oid, [])
             for roid in roids:
-                if referenced(roid):
+                if roid in references:
                     # still referenced, so no need to update
                     # remove it from the references dict so it doesn't
                     # get "added" in the next clause
@@ -368,13 +368,12 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._lock_acquire()
         try:
             rindex = {}
-            referenced = rindex.has_key
             rootl = ['\0\0\0\0\0\0\0\0']
 
             # mark referenced objects
             while rootl:
                 oid = rootl.pop()
-                if referenced(oid):
+                if oid in rindex:
                     continue
                 p = self._opickle[oid]
                 referencesf(p, rootl)
@@ -382,7 +381,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
             # sweep unreferenced objects
             for oid in self._index.keys():
-                if not referenced(oid):
+                if not oid in rindex:
                     self._takeOutGarbage(oid)
         finally:
             self._lock_release()
