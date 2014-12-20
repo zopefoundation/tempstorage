@@ -10,3 +10,4 @@ develop-eggs
 *.pyo
 *.so
 .installed.cfg
+*.egg-info
