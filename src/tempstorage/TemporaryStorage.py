@@ -323,17 +323,17 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
         try:
             del referenceCount[oid]
-        except:
+        except Exception:
             pass
 
         try:
             del self._opickle[oid]
-        except:
+        except Exception:
             pass
 
         try:
             del self._index[oid]
-        except:
+        except Exception:
             pass
 
         # remove this object from the conflict cache if it exists there
@@ -361,7 +361,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                 referenceCount[roid] = rc
         try:
             del self._oreferences[oid]
-        except:
+        except Exception:
             pass
 
     def pack(self, t, referencesf):

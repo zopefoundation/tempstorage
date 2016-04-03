@@ -16,11 +16,11 @@
 
 from setuptools import setup, find_packages
 
-long_description = open("README.txt").read() + "\n" + \
-                   open("CHANGES.txt").read()
+long_description = (open("README.txt").read() + "\n" +
+                    open("CHANGES.txt").read())
 
 setup(name='tempstorage',
-      version = '2.13.dev0',
+      version='3.0.dev0',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
@@ -28,15 +28,14 @@ setup(name='tempstorage',
       author_email='zope-dev@zope.org',
       long_description=long_description,
       classifiers=[
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: Implementation :: CPython",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.3",
+          "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: Implementation :: CPython",
       ],
       packages=find_packages('src'),
       package_dir={'': 'src'},
