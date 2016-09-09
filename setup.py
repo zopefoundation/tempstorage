@@ -42,7 +42,7 @@ setup(name='tempstorage',
       package_dir={'': 'src'},
       install_requires=[
           'setuptools',
-          'ZODB',
+          'ZODB <5.0.dev0',
           'zope.testing',
       ],
       include_package_data=True,

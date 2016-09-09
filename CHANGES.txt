@@ -4,6 +4,8 @@ Changelog
 3.1 - unreleased
 ----------------
 
+- Declare incompatibility with ZODB 5.
+
 - Use `storage._lock` as a context manager.
 
 - Declare PyPy compatibility.
