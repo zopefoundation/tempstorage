@@ -20,7 +20,7 @@ long_description = (open("README.txt").read() + "\n" +
                     open("CHANGES.txt").read())
 
 setup(name='tempstorage',
-      version='3.1.dev0',
+      version='4.0.dev0',
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
@@ -42,7 +42,7 @@ setup(name='tempstorage',
       package_dir={'': 'src'},
       install_requires=[
           'setuptools',
-          'ZODB',
+          'ZODB >= 5.0',
           'zope.testing',
       ],
       include_package_data=True,

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+4.0 - unreleased
+----------------
+
+- Require ZODB 5.0 or newer.
+
 3.1 - unreleased
 ----------------
 
