@@ -25,7 +25,6 @@ import time
 from ZODB import POSException
 from ZODB.BaseStorage import BaseStorage
 from ZODB.ConflictResolution import ConflictResolvingStorage
-from ZODB.ConflictResolution import ResolvedSerial
 from ZODB.serialize import referencesf
 from ZODB.utils import z64
 
@@ -219,9 +218,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                         data = newdata
             else:
                 oserial = serial
-            newserial = self._tid
             self._tmp.append((oid, data))
-            return serial == oserial and newserial or ResolvedSerial
 
     def _finish(self, tid, u, d, e):
         zeros = {}
