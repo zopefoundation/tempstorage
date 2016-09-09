@@ -25,8 +25,7 @@ class ZODBProtocolTests(StorageTestBase.StorageTestBase,
                         BasicStorage.BasicStorage,
                         Synchronization.SynchronizedStorage,
                         ConflictResolution.ConflictResolvingStorage,
-                        MTStorage.MTStorage,
-                       ):
+                        MTStorage.MTStorage):
 
     def setUp(self):
         StorageTestBase.StorageTestBase.setUp(self)
@@ -133,7 +132,7 @@ class TemporaryStorageTests(unittest.TestCase):
         import time
         from ZODB.tests.MinPO import MinPO
         storage = self._makeOne()
-        storage._conflict_cache_gcevery = 1 # second
+        storage._conflict_cache_gcevery = 1  # second
         storage._conflict_cache_maxage = 1  # second
 
         oid = storage.new_oid()
@@ -181,7 +180,7 @@ class TemporaryStorageTests(unittest.TestCase):
 def test_suite():
     return unittest.TestSuite((
         unittest.makeSuite(TemporaryStorageTests),
-        # Note:  we follow the ZODB 'check' pattern here so that the base
+        # Note: we follow the ZODB 'check' pattern here so that the base
         # class tests are picked up.
         unittest.makeSuite(ZODBProtocolTests, 'check'),
     ))

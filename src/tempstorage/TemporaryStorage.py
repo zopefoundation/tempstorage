@@ -129,12 +129,11 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         """
 
     def load(self, oid, version=''):
-        self._lock_acquire()
-        try:
+        with self._lock:
             try:
                 s = self._index[oid]
                 p = self._opickle[oid]
-                return p, s # pickle, serial
+                return p, s  # pickle, serial
             except KeyError:
                 # this oid was probably garbage collected while a thread held
                 # on to an object that had a reference to it; we can probably
@@ -148,8 +147,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                     raise POSException.ConflictError(oid=oid)
                 else:
                     raise
-        finally:
-            self._lock_release()
 
     # Apparently loadEx is required to use this as a ZEO storage for
     # ZODB 3.3.  The tests don't make it totally clear what it's meant
@@ -170,17 +167,14 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         It does not actually implement all the semantics that a revisioning
         storage needs!
         """
-        self._lock_acquire()
-        try:
+        with self._lock:
             data = self._conflict_cache.get((oid, serial), marker)
             if data is marker:
                 # XXX Need 2 serialnos to pass them to ConflictError--
                 # the old and the new
                 raise POSException.ConflictError(oid=oid)
             else:
-                return data[0] # data here is actually (data, t)
-        finally:
-            self._lock_release()
+                return data[0]  # data here is actually (data, t)
 
     def loadBefore(self, oid, tid):
         """ Return most recent revision of oid before tid committed.
@@ -188,43 +182,39 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         Needed for MVCC.
         """
         # implementation stolen from ZODB.test_storage.MinimalMemoryStorage
-        self._lock_acquire()
-        try:
+        with self._lock:
             tids = [stid for soid, stid in self._conflict_cache if soid == oid]
             if not tids:
                 raise KeyError(oid)
             tids.sort()
-            i = bisect.bisect_left(tids, tid) -1
+            i = bisect.bisect_left(tids, tid) - 1
             if i == -1:
                 return None
             start_tid = tids[i]
             j = i + 1
             if j == len(tids):
-                return None # the caller can't deal with current data
+                return None  # the caller can't deal with current data
             else:
                 end_tid = tids[j]
             data = self.loadSerial(oid, start_tid)
             return data, start_tid, end_tid
-        finally:
-            self._lock_release()
 
     def store(self, oid, serial, data, version, transaction):
         if transaction is not self._transaction:
             raise POSException.StorageTransactionError(self, transaction)
         assert not version
 
-        self._lock_acquire()
-        try:
+        with self._lock:
             if oid in self._index:
                 oserial = self._index[oid]
                 if serial != oserial:
                     newdata = self.tryToResolveConflict(
-                                            oid, oserial, serial, data)
+                        oid, oserial, serial, data)
                     if not newdata:
                         raise POSException.ConflictError(
-                                            oid=oid,
-                                            serials=(oserial, serial),
-                                            data=data)
+                            oid=oid,
+                            serials=(oserial, serial),
+                            data=data)
                     else:
                         data = newdata
             else:
@@ -232,8 +222,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             newserial = self._tid
             self._tmp.append((oid, data))
             return serial == oserial and newserial or ResolvedSerial
-        finally:
-            self._lock_release()
 
     def _finish(self, tid, u, d, e):
         zeros = {}
@@ -259,7 +247,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             # doesn't already exist
             if referenceCount_get(oid) is None:
                 referenceCount[oid] = 0
-                #zeros[oid]=1
 
             # update references that are already associated with this
             # object
@@ -276,7 +263,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                     oreferences[oid].remove(roid)
                     # decrement refcnt:
                     rc = referenceCount_get(roid, 1)
-                    rc = rc-1
+                    rc = rc - 1
                     if rc < 0:
                         # This should never happen
                         raise ReferenceCountError(
@@ -357,7 +344,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
                     (ReferenceCountError.__doc__, roid, rc))
             else:
                 # DM 2005-01-07: decremented *before* the test! see above
-                #referenceCount[roid] = rc - 1
                 referenceCount[roid] = rc
         try:
             del self._oreferences[oid]
@@ -365,8 +351,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             pass
 
     def pack(self, t, referencesf):
-        self._lock_acquire()
-        try:
+        with self._lock:
             rindex = {}
             rootl = ['\0\0\0\0\0\0\0\0']
 
@@ -381,7 +366,5 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
             # sweep unreferenced objects
             for oid in self._index.keys():
-                if not oid in rindex:
+                if oid not in rindex:
                     self._takeOutGarbage(oid)
-        finally:
-            self._lock_release()

@@ -4,6 +4,8 @@ Changelog
 3.1 - unreleased
 ----------------
 
+- Use `storage._lock` as a context manager.
+
 - Declare PyPy compatibility.
 
 3.0 - 2016-04-03
