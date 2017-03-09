@@ -192,7 +192,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             start_tid = tids[i]
             j = i + 1
             if j == len(tids):
-                return None  # the caller can't deal with current data
+                end_tid = None
             else:
                 end_tid = tids[j]
             data = self.loadSerial(oid, start_tid)
@@ -298,6 +298,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._tmp = []
 
     def _takeOutGarbage(self, oid):
+        return
         # take out the garbage.
         referenceCount = self._referenceCount
         referenceCount_get = referenceCount.get
