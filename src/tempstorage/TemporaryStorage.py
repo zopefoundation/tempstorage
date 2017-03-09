@@ -298,7 +298,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         self._tmp = []
 
     def _takeOutGarbage(self, oid):
-        return
         # take out the garbage.
         referenceCount = self._referenceCount
         referenceCount_get = referenceCount.get
