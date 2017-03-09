@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 long_description = (open("README.rst").read() + "\n" +
                     open("CHANGES.rst").read())
 
-__version__ = '4.0.dev0'
+__version__ = '4.0'
 
 setup(name='tempstorage',
       version=__version__,

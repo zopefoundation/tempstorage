@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0 - unreleased
+4.0 - 2017-03-09
 ----------------
 
 - Drop Python 3.3 compatibility, add Python 3.6 compatibility.
