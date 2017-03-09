@@ -16,11 +16,13 @@
 
 from setuptools import setup, find_packages
 
-long_description = (open("README.txt").read() + "\n" +
-                    open("CHANGES.txt").read())
+long_description = (open("README.rst").read() + "\n" +
+                    open("CHANGES.rst").read())
+
+__version__ = '4.0.dev0'
 
 setup(name='tempstorage',
-      version='4.0.dev0',
+      version=__version__,
       url='http://pypi.python.org/pypi/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',

@@ -8,9 +8,6 @@ Changelog
 
 - Require ZODB 5.0 or newer.
 
-3.1 - unreleased
-----------------
-
 - Use `storage._lock` as a context manager.
 
 - Declare PyPy compatibility.
