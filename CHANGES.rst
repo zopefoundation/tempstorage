@@ -3,6 +3,7 @@ Changelog
 
 4.0.1 - unreleased
 ------------------
+- Raise POSKeyError instead of KeyError in loadBefore.
 
 
 4.0 - 2017-03-09
