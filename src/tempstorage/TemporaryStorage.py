@@ -184,7 +184,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         with self._lock:
             tids = [stid for soid, stid in self._conflict_cache if soid == oid]
             if not tids:
-                raise KeyError(oid)
+                raise POSException.POSKeyError(oid)
             tids.sort()
             i = bisect.bisect_left(tids, tid) - 1
             if i == -1:
