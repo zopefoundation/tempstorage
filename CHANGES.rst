@@ -8,6 +8,8 @@ Changelog
 
 - Drop Python 3.4 support.
 
+- Add support for Python 3.7.
+
 
 4.0.1 (2017-11-27)
 ------------------
