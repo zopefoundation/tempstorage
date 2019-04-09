@@ -24,7 +24,7 @@ __version__ = version
 
 setup(name='tempstorage',
       version=__version__,
-      url='http://pypi.python.org/pypi/tempstorage',
+      url='https://github.com/zopefoundation/tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
       author='Zope Foundation and Contributors',
