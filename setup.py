@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 long_description = (open("README.rst").read() + "\n" +
                     open("CHANGES.rst").read())
 
-version = '4.0.2.dev0'
+version = '5.0.dev0'
 __version__ = version
 
 setup(name='tempstorage',
@@ -35,7 +35,6 @@ setup(name='tempstorage',
           "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: Implementation :: CPython",
