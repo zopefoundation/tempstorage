@@ -4,7 +4,7 @@ Changelog
 4.0.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update PyPY version.
 
 
 4.0.1 (2017-11-27)
