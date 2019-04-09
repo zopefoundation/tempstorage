@@ -1,10 +1,12 @@
 Changelog
 =========
 
-4.0.2 (unreleased)
+5.0 (unreleased)
 ------------------
 
 - Update PyPY version.
+
+- Drop Python 3.4 support.
 
 
 4.0.1 (2017-11-27)
