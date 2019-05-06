@@ -4,7 +4,7 @@ Changelog
 5.0 (unreleased)
 ------------------
 
-- Update PyPY version.
+- Update PyPy version.
 
 - Drop Python 3.4 support.
 
