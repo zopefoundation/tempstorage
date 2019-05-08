@@ -10,6 +10,8 @@ Changelog
 
 - Add support for Python 3.7.
 
+- Avoid RuntimeError in _takeOutGarbage. See `issue 7
+  <https://github.com/zopefoundation/tempstorage/issues/7>`_.
 
 4.0.1 (2017-11-27)
 ------------------
