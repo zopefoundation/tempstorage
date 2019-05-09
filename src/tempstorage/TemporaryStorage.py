@@ -321,10 +321,9 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
             pass
 
         # remove this object from the conflict cache if it exists there
-        for k in self._conflict_cache.keys():
+        for k in list(self._conflict_cache.keys()):
             if k[0] == oid:
                 del self._conflict_cache[k]
-                break
 
         # Remove/decref references
         roids = self._oreferences.get(oid, [])
