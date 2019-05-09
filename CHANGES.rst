@@ -13,6 +13,7 @@ Changelog
 - Avoid RuntimeError in _takeOutGarbage. See `issue 7
   <https://github.com/zopefoundation/tempstorage/issues/7>`_.
 
+
 4.0.1 (2017-11-27)
 ------------------
 - Raise POSKeyError instead of KeyError in loadBefore.
@@ -29,10 +30,12 @@ Changelog
 
 - Declare PyPy compatibility.
 
+
 3.0 - 2016-04-03
 ----------------
 
 - Python 3.3-3.5 compatibility.
+
 
 2.12.2 - 2012-10-14
 -------------------
@@ -46,12 +49,14 @@ Changelog
 - Disabled ``check_tid_ordering_w_commit`` test from BasicStorage, as it uses
   invalid test data.
 
+
 2.12.0 - 2010-09-25
 -------------------
 
 - Require at least ZODB 3.9 and adjusted method signatures to disuse versions.
 
 - Expanded dependency on ZODB3 to include the test extra.
+
 
 2.11.3 - 2010-06-05
 -------------------
@@ -67,12 +72,14 @@ Changelog
 
 - Fix a test failure due to never-unghostified root in second connection.
 
+
 2.11.2 - 2009-08-03
 -------------------
 
 - Added change log and readme.
 
 - Lauchpad #143736, #271395: fixed AttributeError' on _ltid in TempStorage
+
 
 2.11.1 - 2008-08-05
 -------------------

@@ -49,7 +49,11 @@ setup(name='tempstorage',
           'zope.testing',
       ],
       extras_require={
-        'test': ['mock', 'zope.testrunner'],},
+          'test': [
+              'mock',
+              'zope.testrunner'
+          ],
+      },
       include_package_data=True,
       zip_safe=False,
       keywords=['zope', 'plone', 'zodb']
