@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.0 (unreleased)
-------------------
+5.0 (2019-05-10)
+----------------
 
 - Update PyPy version.
 
