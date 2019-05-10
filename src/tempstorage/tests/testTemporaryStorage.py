@@ -206,9 +206,9 @@ class TemporaryStorageTests(unittest.TestCase):
         storage = self._makeOne()
         db = DB(storage)
         ob = self._do_read_conflict(db, True)
-        self.assertEquals(ob.__class__, MinPO)
-        self.assertEquals(getattr(ob, 'child1', MinPO()).value, 'child1')
-        self.failIf(getattr(ob, 'child2', None))
+        self.assertEqual(ob.__class__, MinPO)
+        self.assertEqual(getattr(ob, 'child1', MinPO()).value, 'child1')
+        self.assertFalse(getattr(ob, 'child2', None))
 
     def test_load_ex_matches_load(self):
         from ZODB.tests.MinPO import MinPO
