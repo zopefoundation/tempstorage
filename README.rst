@@ -6,7 +6,7 @@ MappingStorage. Unlike MappingStorage, it needs not be packed to get rid of
 non-cyclic garbage and it does rudimentary conflict resolution. This is a
 ripoff of Jim's Packless bsddb3 storage.
 
-**Please note: Usage of this package is deprecated, as it is known to randomly loose data, especially with Zope 4.**
+**Please note: Usage of this package is deprecated, as it is known to randomly lose data, especially with Zope 4.**
 
 For a detailed discussion see `#8 <https://github.com/zopefoundation/tempstorage/issues/8>`_ as well as `#12 <https://github.com/zopefoundation/tempstorage/issues/12>`_
 
