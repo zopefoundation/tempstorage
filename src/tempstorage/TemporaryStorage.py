@@ -86,7 +86,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         _conflict_cache_maxage -- age at whic conflict cache items are GC'ed
         """
         deprecation_warning = """\
-DEPRECATED: Usage of the package tempstorage is deprecated, as it is known to randomly loose data.
+DEPRECATED: Usage of the package tempstorage is deprecated, as it is known to randomly lose data.
 Especially on zope 4. For details see https://github.com/zopefoundation/tempstorage/issues/8
 and https://github.com/zopefoundation/tempstorage
 """
