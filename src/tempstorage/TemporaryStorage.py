@@ -87,7 +87,7 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         """
         deprecation_warning = """\
 DEPRECATED: Usage of the package tempstorage is deprecated, as it is known to randomly lose data.
-Especially on zope 4. For details see https://github.com/zopefoundation/tempstorage/issues/8
+Especially on Zope 4. For details see https://github.com/zopefoundation/tempstorage/issues/8
 and https://github.com/zopefoundation/tempstorage
 """
         LOG.warning(deprecation_warning)
