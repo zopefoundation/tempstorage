@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.1 (unreleased)
+5.1 (2019-08-15)
 ----------------
 
 - Package is now officially deprecated as it was broken for many years. This 
