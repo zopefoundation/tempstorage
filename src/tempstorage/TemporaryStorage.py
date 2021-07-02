@@ -124,11 +124,20 @@ and https://github.com/zopefoundation/tempstorage
     def _clear_temp(self):
         now = time.time()
         if now > (self._last_cache_gc + self._conflict_cache_gcevery):
-            temp_cc = self._conflict_cache.copy()
-            for k, v in temp_cc.items():
-                data, t = v
-                if now > (t + self._conflict_cache_maxage):
-                    del self._conflict_cache[k]
+            # build {} oid -> [](serial, data, t)
+            byoid = {}
+            for ((oid,serial), (data,t)) in self._conflict_cache.items():
+                hist = byoid.setdefault(oid, [])
+                hist.append((serial, data, t))
+
+            # gc entries but keep latest record for each oid
+            for oid, hist in byoid.items():
+                hist.sort(key=lambda _: _[0]) # by serial
+                hist = hist[:-1] # without latest record
+                for serial, data, t in hist:
+                    if now > (t + self._conflict_cache_maxage):
+                        del self._conflict_cache[(oid,serial)]
+
             self._last_cache_gc = now
         self._tmp = []
 

@@ -180,25 +180,45 @@ class TemporaryStorageTests(unittest.TestCase):
         storage._conflict_cache_gcevery = 1  # second
         storage._conflict_cache_maxage = 1  # second
 
-        oid = storage.new_oid()
-        self._dostore(storage, oid, data=MinPO(5))
+        # assertCacheKeys asserts that set(storage._conflict_cache.keys()) == oidrevSet
+        # storage._conflict_cache is organized as {} (oid,rev) -> (data,t) and
+        # so is used by loadBefore as data storage. It is important that latest
+        # revision of an object is not garbage-collected so that loadBefore
+        # does not loose what was last committed.
+        def assertCacheKeys(*voidrevOK):
+            oidrevOK = set(voidrevOK)
+            self.assertEqual(set(storage._conflict_cache.keys()), oidrevOK)
+
+        oid1 = storage.new_oid()
+        self._dostore(storage, oid1, data=MinPO(5))
+        rev11 = storage.lastTransaction()
+        self._dostore(storage, oid1, revid=rev11, data=MinPO(7))
+        rev12 = storage.lastTransaction()
 
         time.sleep(2)
 
         oid2 = storage.new_oid()
         self._dostore(storage, oid2, data=MinPO(10))
+        rev21 = storage.lastTransaction()
 
         oid3 = storage.new_oid()
         self._dostore(storage, oid3, data=MinPO(9))
+        rev31 = storage.lastTransaction()
 
-        self.assertEqual(len(storage._conflict_cache), 2)
+        # (oid1, rev11) garbage-collected
+        assertCacheKeys((oid1, rev12), (oid2, rev21), (oid3, rev31))
+
+        self._dostore(storage, oid2, revid=rev21, data=MinPO(11))
+        rev22 = storage.lastTransaction()
 
         time.sleep(2)
 
         oid4 = storage.new_oid()
         self._dostore(storage, oid4, data=MinPO(11))
+        rev41 = storage.lastTransaction()
 
-        self.assertEqual(len(storage._conflict_cache), 1)
+        # (oid2, rev21) garbage-collected
+        assertCacheKeys((oid1, rev12), (oid2, rev22), (oid3, rev31), (oid4, rev41))
 
     def test_have_MVCC_ergo_no_ReadConflict(self):
         from ZODB.DB import DB
