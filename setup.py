@@ -74,6 +74,7 @@ setup(name='tempstorage',
       extras_require={
           'test': [
               'zope.testrunner',
+              'mock ; python_version < "3"',
           ],
       },
       include_package_data=True,
