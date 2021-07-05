@@ -19,6 +19,7 @@ from ZODB.tests import BasicStorage
 from ZODB.tests import Synchronization
 from ZODB.tests import ConflictResolution
 from ZODB.tests import MTStorage
+from ZODB.utils import p64, u64
 
 
 def handle_all_serials(oid, *args):
@@ -188,6 +189,11 @@ class TemporaryStorageTests(unittest.TestCase):
         def assertCacheKeys(*voidrevOK):
             oidrevOK = set(voidrevOK)
             self.assertEqual(set(storage._conflict_cache.keys()), oidrevOK)
+            # make sure that loadBefore actually uses ._conflict_cache data
+            for (oid, rev) in voidrevOK:
+                load_data, load_serial, _ = storage.loadBefore(oid, p64(u64(rev)+1))
+                data, t = storage._conflict_cache[(oid, rev)]
+                self.assertEqual((load_data, load_serial), (data, rev))
 
         oid1 = storage.new_oid()
         self._dostore(storage, oid1, data=MinPO(5))
