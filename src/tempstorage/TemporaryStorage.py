@@ -19,7 +19,6 @@ resolution.
 This is a ripoff of Jim's Packless bsddb3 storage.
 """
 import bisect
-import warnings
 import time
 
 from ZODB import POSException
@@ -116,17 +115,17 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
         if now > (self._last_cache_gc + self._conflict_cache_gcevery):
             # build {} oid -> [](serial, data, t)
             byoid = {}
-            for ((oid,serial), (data,t)) in self._conflict_cache.items():
+            for ((oid, serial), (data, t)) in self._conflict_cache.items():
                 hist = byoid.setdefault(oid, [])
                 hist.append((serial, data, t))
 
             # gc entries but keep latest record for each oid
             for oid, hist in byoid.items():
-                hist.sort(key=lambda _: _[0]) # by serial
-                hist = hist[:-1] # without latest record
+                hist.sort(key=lambda _: _[0])  # by serial
+                hist = hist[:-1]  # without latest record
                 for serial, data, t in hist:
                     if now > (t + self._conflict_cache_maxage):
-                        del self._conflict_cache[(oid,serial)]
+                        del self._conflict_cache[(oid, serial)]
 
             self._last_cache_gc = now
         self._tmp = []
