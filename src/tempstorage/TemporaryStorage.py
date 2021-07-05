@@ -19,7 +19,6 @@ resolution.
 This is a ripoff of Jim's Packless bsddb3 storage.
 """
 import bisect
-from logging import getLogger
 import warnings
 import time
 
@@ -37,8 +36,6 @@ CONFLICT_CACHE_GCEVERY = 60
 
 # keep history of recently gc'ed oids of length RECENTLY_GC_OIDS_LEN
 RECENTLY_GC_OIDS_LEN = 200
-
-LOG = getLogger('TemporaryStorage')
 
 
 class ReferenceCountError(POSException.POSError):
@@ -85,13 +82,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
         _conflict_cache_maxage -- age at whic conflict cache items are GC'ed
         """
-        deprecation_warning = """\
-DEPRECATED: Usage of the package tempstorage is deprecated, as it is known to randomly lose data.
-Especially on Zope 4. For details see https://github.com/zopefoundation/tempstorage/issues/8
-and https://github.com/zopefoundation/tempstorage
-"""
-        LOG.warning(deprecation_warning)
-        warnings.warn(deprecation_warning, DeprecationWarning)
 
         BaseStorage.__init__(self, name)
 
@@ -124,11 +114,20 @@ and https://github.com/zopefoundation/tempstorage
     def _clear_temp(self):
         now = time.time()
         if now > (self._last_cache_gc + self._conflict_cache_gcevery):
-            temp_cc = self._conflict_cache.copy()
-            for k, v in temp_cc.items():
-                data, t = v
-                if now > (t + self._conflict_cache_maxage):
-                    del self._conflict_cache[k]
+            # build {} oid -> [](serial, data, t)
+            byoid = {}
+            for ((oid,serial), (data,t)) in self._conflict_cache.items():
+                hist = byoid.setdefault(oid, [])
+                hist.append((serial, data, t))
+
+            # gc entries but keep latest record for each oid
+            for oid, hist in byoid.items():
+                hist.sort(key=lambda _: _[0]) # by serial
+                hist = hist[:-1] # without latest record
+                for serial, data, t in hist:
+                    if now > (t + self._conflict_cache_maxage):
+                        del self._conflict_cache[(oid,serial)]
+
             self._last_cache_gc = now
         self._tmp = []
 
