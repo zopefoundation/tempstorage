@@ -135,7 +135,7 @@ class TemporaryStorageTests(unittest.TestCase):
             r2 = storage.tpc_vote(t)
             revid = handle_serials(oid, r1, r2)
             storage.tpc_finish(t)
-        except:
+        except:  # noqa: E722 bare except
             storage.tpc_abort(t)
             raise
         return revid
@@ -181,7 +181,8 @@ class TemporaryStorageTests(unittest.TestCase):
         storage._conflict_cache_gcevery = 1  # second
         storage._conflict_cache_maxage = 1  # second
 
-        # assertCacheKeys asserts that set(storage._conflict_cache.keys()) == oidrevSet
+        # assertCacheKeys asserts that
+        # set(storage._conflict_cache.keys()) == oidrevSet
         # storage._conflict_cache is organized as {} (oid,rev) -> (data,t) and
         # so is used by loadBefore as data storage. It is important that latest
         # revision of an object is not garbage-collected so that loadBefore
@@ -191,7 +192,8 @@ class TemporaryStorageTests(unittest.TestCase):
             self.assertEqual(set(storage._conflict_cache.keys()), oidrevOK)
             # make sure that loadBefore actually uses ._conflict_cache data
             for (oid, rev) in voidrevOK:
-                load_data, load_serial, _ = storage.loadBefore(oid, p64(u64(rev)+1))
+                load_data, load_serial, _ = storage.loadBefore(oid,
+                                                               p64(u64(rev)+1))
                 data, t = storage._conflict_cache[(oid, rev)]
                 self.assertEqual((load_data, load_serial), (data, rev))
 
@@ -224,7 +226,10 @@ class TemporaryStorageTests(unittest.TestCase):
         rev41 = storage.lastTransaction()
 
         # (oid2, rev21) garbage-collected
-        assertCacheKeys((oid1, rev12), (oid2, rev22), (oid3, rev31), (oid4, rev41))
+        assertCacheKeys((oid1, rev12),
+                        (oid2, rev22),
+                        (oid3, rev31),
+                        (oid4, rev41))
 
     def test_have_MVCC_ergo_no_ReadConflict(self):
         from ZODB.DB import DB

@@ -4,6 +4,8 @@ Changelog
 5.2 (unreleased)
 ----------------
 
+- Update package configuration
+
 - Package is now officially undeprecated because the data corruption issue -
   that was the reason for its deprecation - has been understood and fixed. See
   (`#16 <https://github.com/zopefoundation/tempstorage/issues/16>`_).

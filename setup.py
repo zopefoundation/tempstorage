@@ -14,28 +14,36 @@
 """Setup for the tempstorage package
 """
 
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
+
 
 long_description = (open("README.rst").read() + "\n" +
                     open("CHANGES.rst").read())
-
 version = '5.2.dev0'
 __version__ = version
+
 
 setup(name='tempstorage',
       version=__version__,
       url='https://github.com/zopefoundation/tempstorage',
+      project_urls={
+        'Issue Tracker': ('https://github.com/zopefoundation/'
+                          'tempstorage/issues'),
+        'Sources': 'https://github.com/zopefoundation/tempstorage',
+      },
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       long_description=long_description,
       classifiers=[
-          "Development Status :: 7 - Inactive",
+          "Development Status :: 6 - Mature",
           "Environment :: Web Environment",
           "Framework :: ZODB",
           "Framework :: Zope",
           "Framework :: Zope :: 4",
+          "Framework :: Zope :: 5",
           "Intended Audience :: Developers",
           "License :: OSI Approved",
           "License :: OSI Approved :: Zope Public License",
@@ -57,15 +65,15 @@ setup(name='tempstorage',
       ],
       packages=find_packages('src'),
       package_dir={'': 'src'},
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
       install_requires=[
           'setuptools',
-          'ZODB >= 5.0',
+          'ZODB >= 5.6',
           'zope.testing',
       ],
       extras_require={
           'test': [
-              'mock',
-              'zope.testrunner'
+              'zope.testrunner',
           ],
       },
       include_package_data=True,

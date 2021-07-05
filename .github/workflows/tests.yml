@@ -1,4 +1,5 @@
-# based on https://github.com/zopefoundation/meta/blob/master/config/default/tests.yml.j2
+# Generated from:
+# https://github.com/zopefoundation/meta/tree/master/config/pure-python
 name: tests
 
 on:
@@ -19,6 +20,7 @@ jobs:
         - ubuntu
         config:
         # [Python version, tox env]
+        - ["3.8",   "lint"]
         - ["2.7",   "py27"]
         - ["3.5",   "py35"]
         - ["3.6",   "py36"]
@@ -27,6 +29,7 @@ jobs:
         - ["3.9",   "py39"]
         - ["pypy2", "pypy"]
         - ["pypy3", "pypy3"]
+        - ["3.8",   "coverage"]
 
     runs-on: ${{ matrix.os }}-latest
     name: ${{ matrix.config[1] }}
@@ -50,3 +53,10 @@ jobs:
         pip install tox
     - name: Test
       run: tox -e ${{ matrix.config[1] }}
+    - name: Coverage
+      if: matrix.config[1] == 'coverage'
+      run: |
+        pip install coveralls coverage-python-version
+        coveralls --service=github
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
