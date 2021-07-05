@@ -8,6 +8,8 @@ Changelog
   that was the reason for its deprecation - has been understood and fixed. See
   (`#16 <https://github.com/zopefoundation/tempstorage/issues/16>`_).
 
+- Add support for Python 3.8 and Python 3.9.
+
 
 5.1 (2019-08-15)
 ----------------
