@@ -20,7 +20,7 @@ from setuptools import setup
 
 long_description = (open("README.rst").read() + "\n" +
                     open("CHANGES.rst").read())
-version = '5.2.dev0'
+version = '5.2'
 __version__ = version
 
 

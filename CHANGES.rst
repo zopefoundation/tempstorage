@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.2 (unreleased)
+5.2 (2021-07-05)
 ----------------
 
 - Update package configuration
