@@ -107,7 +107,7 @@ class TemporaryStorageTests(unittest.TestCase):
 
         Returns the object's new revision id.
         """
-        import transaction
+        from ZODB.Connection import TransactionMetaData
         from ZODB.tests.MinPO import MinPO
 
         if oid is None:
@@ -121,7 +121,7 @@ class TemporaryStorageTests(unittest.TestCase):
         if not already_pickled:
             data = StorageTestBase.zodb_pickle(data)
         # Begin the transaction
-        t = transaction.Transaction()
+        t = TransactionMetaData()
         if user is not None:
             t.user = user
         if description is not None:
