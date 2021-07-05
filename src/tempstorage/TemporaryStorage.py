@@ -19,7 +19,6 @@ resolution.
 This is a ripoff of Jim's Packless bsddb3 storage.
 """
 import bisect
-from logging import getLogger
 import warnings
 import time
 
@@ -37,8 +36,6 @@ CONFLICT_CACHE_GCEVERY = 60
 
 # keep history of recently gc'ed oids of length RECENTLY_GC_OIDS_LEN
 RECENTLY_GC_OIDS_LEN = 200
-
-LOG = getLogger('TemporaryStorage')
 
 
 class ReferenceCountError(POSException.POSError):
@@ -85,13 +82,6 @@ class TemporaryStorage(BaseStorage, ConflictResolvingStorage):
 
         _conflict_cache_maxage -- age at whic conflict cache items are GC'ed
         """
-        deprecation_warning = """\
-DEPRECATED: Usage of the package tempstorage is deprecated, as it is known to randomly lose data.
-Especially on Zope 4. For details see https://github.com/zopefoundation/tempstorage/issues/8
-and https://github.com/zopefoundation/tempstorage
-"""
-        LOG.warning(deprecation_warning)
-        warnings.warn(deprecation_warning, DeprecationWarning)
 
         BaseStorage.__init__(self, name)
 
