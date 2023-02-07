@@ -27,6 +27,7 @@ from ZODB.ConflictResolution import ConflictResolvingStorage
 from ZODB.serialize import referencesf
 from ZODB.utils import z64
 
+
 # keep old object revisions for CONFLICT_CACHE_MAXAGE seconds
 CONFLICT_CACHE_MAXAGE = 60
 

@@ -14,12 +14,13 @@
 
 import unittest
 
-from ZODB.tests import StorageTestBase
 from ZODB.tests import BasicStorage
-from ZODB.tests import Synchronization
 from ZODB.tests import ConflictResolution
 from ZODB.tests import MTStorage
-from ZODB.utils import p64, u64
+from ZODB.tests import StorageTestBase
+from ZODB.tests import Synchronization
+from ZODB.utils import p64
+from ZODB.utils import u64
 
 
 def handle_all_serials(oid, *args):
@@ -176,6 +177,7 @@ class TemporaryStorageTests(unittest.TestCase):
 
     def test_conflict_cache_clears_over_time(self):
         import time
+
         from ZODB.tests.MinPO import MinPO
         storage = self._makeOne()
         storage._conflict_cache_gcevery = 1  # second
