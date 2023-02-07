@@ -35,7 +35,7 @@ setup(name='tempstorage',
       license='ZPL 2.1',
       description='A RAM-based storage for ZODB',
       author='Zope Foundation and Contributors',
-      author_email='zope-dev@zope.org',
+      author_email='zope-dev@zope.dev',
       long_description=long_description,
       classifiers=[
           "Development Status :: 6 - Mature",
