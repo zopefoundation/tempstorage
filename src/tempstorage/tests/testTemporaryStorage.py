@@ -14,12 +14,13 @@
 
 import unittest
 
-from ZODB.tests import StorageTestBase
 from ZODB.tests import BasicStorage
-from ZODB.tests import Synchronization
 from ZODB.tests import ConflictResolution
 from ZODB.tests import MTStorage
-from ZODB.utils import p64, u64
+from ZODB.tests import StorageTestBase
+from ZODB.tests import Synchronization
+from ZODB.utils import p64
+from ZODB.utils import u64
 
 
 def handle_all_serials(oid, *args):
@@ -81,7 +82,7 @@ class ZODBProtocolTests(StorageTestBase.StorageTestBase,
         from tempstorage.TemporaryStorage import TemporaryStorage
         self._storage = TemporaryStorage('foo')
 
-    def check_tid_ordering_w_commit(self):
+    def test_tid_ordering_w_commit(self):
         # The test uses invalid test data of 'x'. The normal storages
         # don't load the actual data and thus pass, but the tempstorage
         # will always try to load the data and fail
@@ -176,6 +177,7 @@ class TemporaryStorageTests(unittest.TestCase):
 
     def test_conflict_cache_clears_over_time(self):
         import time
+
         from ZODB.tests.MinPO import MinPO
         storage = self._makeOne()
         storage._conflict_cache_gcevery = 1  # second
@@ -255,8 +257,7 @@ class TemporaryStorageTests(unittest.TestCase):
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(TemporaryStorageTests),
-        # Note: we follow the ZODB 'check' pattern here so that the base
-        # class tests are picked up.
-        unittest.makeSuite(ZODBProtocolTests, 'check'),
+        unittest.defaultTestLoader.loadTestsFromTestCase(
+            TemporaryStorageTests),
+        unittest.defaultTestLoader.loadTestsFromTestCase(ZODBProtocolTests),
     ))
