@@ -118,7 +118,7 @@ class TemporaryStorageTests(unittest.TestCase):
             revid = StorageTestBase.ZERO
         if data is None:
             data = MinPO(7)
-        if type(data) == int:
+        if isinstance(data, int):
             data = MinPO(data)
         if not already_pickled:
             data = StorageTestBase.zodb_pickle(data)
