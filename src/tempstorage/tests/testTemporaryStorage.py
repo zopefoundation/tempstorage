@@ -194,8 +194,8 @@ class TemporaryStorageTests(unittest.TestCase):
             self.assertEqual(set(storage._conflict_cache.keys()), oidrevOK)
             # make sure that loadBefore actually uses ._conflict_cache data
             for (oid, rev) in voidrevOK:
-                load_data, load_serial, _ = storage.loadBefore(oid,
-                                                               p64(u64(rev)+1))
+                load_data, load_serial, _ = storage.loadBefore(
+                    oid, p64(u64(rev) + 1))
                 data, t = storage._conflict_cache[(oid, rev)]
                 self.assertEqual((load_data, load_serial), (data, rev))
 
