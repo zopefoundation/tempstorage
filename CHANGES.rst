@@ -4,6 +4,8 @@ Changelog
 6.1 (unreleased)
 ----------------
 
+- Drop support for Python 3.10, 3.9.
+
 - Add support for Python 3.12, 3.13.
 
 - Drop support for Python 3.7, 3.8.
