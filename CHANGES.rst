@@ -36,9 +36,9 @@ Changelog
 5.1 (2019-08-15)
 ----------------
 
-- Package is now officially deprecated as it was broken for many years. This 
-  was/ is common knowledge in the zope community, but was not documented 
-  anywhere and thus this package was still used by many community members 
+- Package is now officially deprecated as it was broken for many years. This
+  was/ is common knowledge in the zope community, but was not documented
+  anywhere and thus this package was still used by many community members
   without knowing this. See
   (`#8 <https://github.com/zopefoundation/tempstorage/issues/8>`_)
   (`#12 <https://github.com/zopefoundation/tempstorage/issues/12>`_)
